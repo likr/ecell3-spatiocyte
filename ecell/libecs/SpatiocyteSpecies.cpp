@@ -67,17 +67,44 @@ void Species::walkMols(std::vector<unsigned>& aMols,
                        const std::vector<unsigned>& aTars,
                        std::vector<unsigned short>& anIDs)
 {
+#if defined(__MIC__)
+  const unsigned BLOCKSIZE(32);
+  const unsigned aSize(aMols.size());
+  for(unsigned iStart(0); iStart < aSize; iStart += BLOCKSIZE)
+    {
+      const unsigned iStop = std::min(iStart + BLOCKSIZE, aSize);
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned aTar(aTars[i]);
+          const unsigned aTarMol(aTar%theBoxMaxSize);
+          _mm_prefetch((const char*)(anIDs.data() + aTarMol), _MM_HINT_T0);
+          //_mm_prefetch((const char*)(anIDs.data() + aMols[i]), _MM_HINT_T0);
+        }
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned aTar(aTars[i]);
+          const unsigned aTarMol(aTar%theBoxMaxSize);
+          if(anIDs[aTarMol] == theVacantID)
+            {
+              anIDs[aTarMol] = theID;
+              anIDs[aMols[i]] = theVacantID;
+              aMols[i] = aTarMol;
+            }
+        }
+    }
+#else
   for(unsigned i(0); i < aMols.size(); ++i)
     {
       const unsigned aTar(aTars[i]);
       const unsigned aTarMol(aTar%theBoxMaxSize);
       if(anIDs[aTarMol] == theVacantID)
-        { 
+        {
           anIDs[aTarMol] = theID;
           anIDs[aMols[i]] = theVacantID;
           aMols[i] = aTarMol;
         }
     }
+#endif
 }
 
 void Species::updateAdjMols(const unsigned currBox, const unsigned r,
