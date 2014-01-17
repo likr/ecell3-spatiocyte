@@ -239,43 +239,36 @@ void Species::setTars(const unsigned currBox,
                       std::vector<unsigned>& aRands)
 {
 #if defined(__MIC__)
+  const unsigned BLOCKSIZE = 32;
+  const unsigned aSize(aMols.size());
   aTars.resize(aMols.size());
-  const unsigned aSize(aMols.size() - 1);
   unsigned j(0);
-  unsigned nextMol = aMols[0];
-  unsigned nextIndex(nextMol * theAdjoinSize + aRands[0]);
-  for(unsigned i(0); i < aSize; ++i)
+
+  for(unsigned iStart(0); iStart < aSize; iStart += BLOCKSIZE)
     {
-      const unsigned aMol = nextMol;
-      const unsigned index(nextIndex);
-      nextMol = aMols[i + 1];
-      nextIndex = nextMol * theAdjoinSize + aRands[i + 1];
-      _mm_prefetch((const char*)(anAdjoins.data() + nextIndex), _MM_HINT_T0);
-      const unsigned aTar = anAdjoins[index];
-      if(aTar/theBoxMaxSize != currBox)
+      const unsigned iStop = std::min(iStart + BLOCKSIZE, aSize);
+      for(unsigned i(iStart); i < iStop; ++i)
         {
-          anAdjMols[aTar/theBoxMaxSize].push_back(aMol);
-          anAdjTars[aTar/theBoxMaxSize].push_back(aTar);
+          const unsigned index(aMols[i]*theAdjoinSize+aRands[i]);
+          _mm_prefetch((const char*)(anAdjoins.data() + index), _MM_HINT_T0);
         }
-      else
+      for(unsigned i(iStart); i < iStop; ++i)
         {
-          aMols[j] = aMol;
-          aTars[j] = aTar;
-          ++j;
+          const unsigned aMol = aMols[i];
+          const unsigned index(aMols[i]*theAdjoinSize+aRands[i]);
+          const unsigned aTar = anAdjoins[index];
+          if(aTar/theBoxMaxSize != currBox)
+            {
+              anAdjMols[aTar/theBoxMaxSize].push_back(aMol);
+              anAdjTars[aTar/theBoxMaxSize].push_back(aTar);
+            }
+          else
+            {
+              aMols[j] = aMol;
+              aTars[j] = aTar;
+              ++j;
+            }
         }
-    }
-  const unsigned aMol = nextMol;
-  const unsigned aTar = anAdjoins[nextIndex];
-  if(aTar/theBoxMaxSize != currBox)
-    {
-      anAdjMols[aTar/theBoxMaxSize].push_back(aMol);
-      anAdjTars[aTar/theBoxMaxSize].push_back(aTar);
-    }
-  else
-    {
-      aMols[j] = aMol;
-      aTars[j] = aTar;
-      ++j;
     }
   aMols.resize(j);
   aTars.resize(j);
