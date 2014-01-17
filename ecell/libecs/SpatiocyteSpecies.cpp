@@ -68,7 +68,7 @@ void Species::walkMols(std::vector<unsigned>& aMols,
                        std::vector<unsigned short>& anIDs)
 {
 #if defined(__MIC__)
-  const unsigned BLOCKSIZE(32);
+  const unsigned BLOCKSIZE(64);
   const unsigned aSize(aMols.size());
   for(unsigned iStart(0); iStart < aSize; iStart += BLOCKSIZE)
     {
@@ -266,7 +266,7 @@ void Species::setTars(const unsigned currBox,
                       std::vector<unsigned>& aRands)
 {
 #if defined(__MIC__)
-  const unsigned BLOCKSIZE = 32;
+  const unsigned BLOCKSIZE(64);
   const unsigned aSize(aMols.size());
   aTars.resize(aMols.size());
   unsigned j(0);
