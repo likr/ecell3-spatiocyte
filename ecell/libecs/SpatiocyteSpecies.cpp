@@ -29,6 +29,9 @@
 //
 
 #include <SpatiocyteSpecies.hpp>
+#if defined(__MIC__)
+#include <immintrin.h>
+#endif
 
 namespace libecs
 {
@@ -235,6 +238,48 @@ void Species::setTars(const unsigned currBox,
                       const std::vector<unsigned>& anAdjoins,
                       std::vector<unsigned>& aRands)
 {
+#if defined(__MIC__)
+  aTars.resize(aMols.size());
+  const unsigned aSize(aMols.size() - 1);
+  unsigned j(0);
+  unsigned nextMol = aMols[0];
+  unsigned nextIndex(nextMol * theAdjoinSize + aRands[0]);
+  for(unsigned i(0); i < aSize; ++i)
+    {
+      const unsigned aMol = nextMol;
+      const unsigned index(nextIndex);
+      nextMol = aMols[i + 1];
+      nextIndex = nextMol * theAdjoinSize + aRands[i + 1];
+      _mm_prefetch((const char*)(anAdjoins.data() + nextIndex), _MM_HINT_T0);
+      const unsigned aTar = anAdjoins[index];
+      if(aTar/theBoxMaxSize != currBox)
+        {
+          anAdjMols[aTar/theBoxMaxSize].push_back(aMol);
+          anAdjTars[aTar/theBoxMaxSize].push_back(aTar);
+        }
+      else
+        {
+          aMols[j] = aMol;
+          aTars[j] = aTar;
+          ++j;
+        }
+    }
+  const unsigned aMol = nextMol;
+  const unsigned aTar = anAdjoins[nextIndex];
+  if(aTar/theBoxMaxSize != currBox)
+    {
+      anAdjMols[aTar/theBoxMaxSize].push_back(aMol);
+      anAdjTars[aTar/theBoxMaxSize].push_back(aTar);
+    }
+  else
+    {
+      aMols[j] = aMol;
+      aTars[j] = aTar;
+      ++j;
+    }
+  aMols.resize(j);
+  aTars.resize(j);
+#else
   const unsigned aSize(aMols.size());
   aTars.resize(aSize);
   for(unsigned i(0); i < aSize; ++i)
@@ -254,6 +299,7 @@ void Species::setTars(const unsigned currBox,
           --i;
         }
     }
+#endif
 }
 
 void Species::walk(const unsigned anID, unsigned r, unsigned w,
