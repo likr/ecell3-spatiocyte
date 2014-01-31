@@ -211,8 +211,8 @@ private:
   bool isInitialized;
   bool isPeriodicEdge;
   bool SearchVacant;
-  char flagA;
-  char flagB;
+  pthread_mutex_t mutex;
+  pthread_cond_t cond;
   unsigned short theNullID;
   unsigned BoxCols;
   unsigned BoxLayers;

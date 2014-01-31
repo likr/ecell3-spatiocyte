@@ -78,7 +78,9 @@ void SpatiocyteStepper::initialize()
   std::cout << "5. initializing processes the second time..." << std::endl;
   initializeSecond();
   std::cout << "6. constructing lattice..." << std::endl;
+  theThreads[0]->synchronize(); // runChildren
   constructLattice(0);
+  theThreads[0]->synchronize(); // runChildren
   concatenateLattice(0);
   setBoundaries();
   //checkLattice();
@@ -110,6 +112,7 @@ void SpatiocyteStepper::initialize()
   std::cout << "18. printing final process parameters..." << std::endl <<
     std::endl;
   printProcessParameters();
+  theThreads[0]->synchronize(); // runChildren
   std::cout << "19. simulation is started..." << std::endl;
 }
 
@@ -126,14 +129,14 @@ SpatiocyteStepper::~SpatiocyteStepper()
 void SpatiocyteStepper::initializeThreads()
 {
   nThreadsRunning = 0;
-  flagA = FLAG_STOP;
-  flagB = FLAG_STOP;
+  pthread_mutex_init(&mutex, NULL);
+  pthread_cond_init(&cond, NULL);
   __sync_synchronize();
   theThreads.resize(ThreadSize);
   for(unsigned i(0); i != ThreadSize; ++i)
     {
-      theThreads[i] = new Thread(i, ThreadSize, nThreadsRunning, flagA,
-                                 flagB, theSpecies, *this);
+      theThreads[i] = new Thread(i, ThreadSize, nThreadsRunning, mutex, cond,
+                                 theSpecies, *this);
       if(i)
         {
           theThreads[i]->create();
@@ -162,7 +165,9 @@ void SpatiocyteStepper::finalizeSpecies()
     {
       (*i)->finalizeSpecies();
     }
+  theThreads[0]->synchronize();
   theThreads[0]->initialize();
+  theThreads[0]->synchronize();
   theThreads[0]->initializeLists();
 }
 
@@ -1182,10 +1187,10 @@ void SpatiocyteStepper::setAdjAdjBoxes()
             }
         }
       std::cout << "box:" << boxA << std::endl;
-      for(unsigned j(0); j != adjAdjA.size(); ++j)
-        {
-          std::cout << "     adjAdj:" << adjAdjA[j] << std::endl;
-        }
+      //for(unsigned j(0); j != adjAdjA.size(); ++j)
+      //  {
+      //    std::cout << "     adjAdj:" << adjAdjA[j] << std::endl;
+      //  }
     }
 }
 
@@ -1679,7 +1684,6 @@ void SpatiocyteStepper::constructLattice()
 
 void SpatiocyteStepper::constructLattice(unsigned anID)
 {
-  theThreads[anID]->runChildren();
   Comp* aRootComp(theComps[0]);
   const unsigned short rootID(aRootComp->vacantSpecies->getID());
   const unsigned startID(anID*theBoxSize);
@@ -1752,12 +1756,10 @@ void SpatiocyteStepper::constructLattice(unsigned anID)
             }
         }
     }
-  theThreads[anID]->waitChildren();
 }
 
 void SpatiocyteStepper::concatenateLattice(unsigned anID)
 { 
-  theThreads[anID]->runChildren();
   /*
   if(anID)
     {
@@ -1773,7 +1775,6 @@ void SpatiocyteStepper::concatenateLattice(unsigned anID)
           concatenateVoxel(i, j);
         }
     }
-  theThreads[anID]->waitChildren();
 }
 
 void SpatiocyteStepper::setBoundaries()

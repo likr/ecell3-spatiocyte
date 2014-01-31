@@ -35,7 +35,6 @@ namespace libecs
 
 void Thread::initialize()
 {
-  runChildren();
   theTotalBoxSize = theStepper.getBoxSize();
   theBoxSize = theTotalBoxSize/theThreadSize;
   theRng.Reseed();
@@ -75,12 +74,10 @@ void Thread::initialize()
         }
     }
   //doWork();
-  waitChildren();
 }
 
 void Thread::initializeLists()
 {
-  runChildren();
   for(unsigned i(0); i != theBoxSize; ++i)
     {
       theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i],
@@ -88,7 +85,6 @@ void Thread::initializeLists()
                                      theAdjoins[i], theIDs[i], theAdjBoxes[i],
                                      theAdjAdjBoxes[i], theRands[i]);
     }
-  waitChildren();
 }
 
 void Thread::doWork()
@@ -109,7 +105,6 @@ void Thread::doWork()
 
 void Thread::walk()
 {
-  runChildren();
   unsigned r(0);
   unsigned w(1);
   if(isToggled)
@@ -135,82 +130,33 @@ void Thread::walk()
                               theAdjAdjBoxes[i], theRands[i]);
         }
     }
-  waitChildren();
+  synchronize();
 }
 
-void Thread::runChildren()
+void Thread::synchronize()
 {
-  if(!theID)
-    {
-      if(isRunA)
-        {
-          flagA = FLAG_RUN;
-        }
-      else
-        {
-          flagB = FLAG_RUN;
-        }
-    }
-}
-
-void Thread::waitChildren()
-{
-  if(!theID)
-    {
-      while(ACCESS_ONCE(nThreadsRunning) < theThreadSize-1)
-        {
-          continue;
-        }
-      nThreadsRunning = 0;
-      if(isRunA)
-        {
-          flagA = FLAG_STOP;
-          isRunA = false;
-        }
-      else
-        {
-          flagB = FLAG_STOP;
-          isRunA = true;
-        }
-      //__sync_synchronize();
-    }
-}
-
-void Thread::waitParent()
-{
-  if(isRunA)
-    {
-      while(ACCESS_ONCE(flagA) == FLAG_STOP)
-        {
-          continue;
-        }
-      isRunA = false;
-    }
-  else
-    {
-      while(ACCESS_ONCE(flagB) == FLAG_STOP)
-        {
-          continue;
-        }
-      isRunA = true;
-    }
+  pthread_mutex_lock(&mutex);
+  nThreadsRunning += 1;
+  if (nThreadsRunning == theThreadSize) {
+    pthread_cond_broadcast(&cond);
+    nThreadsRunning = 0;
+  } else {
+    pthread_cond_wait(&cond, &mutex);
+  }
+  pthread_mutex_unlock(&mutex);
 }
 
 void Thread::work()
 {
-  waitParent();
+  synchronize();
   theStepper.constructLattice(theID);
-  __sync_fetch_and_add(&nThreadsRunning, 1);
-  waitParent();
+  synchronize();
   theStepper.concatenateLattice(theID);
-  __sync_fetch_and_add(&nThreadsRunning, 1);
-  waitParent();
+  synchronize();
   initialize();
-  __sync_fetch_and_add(&nThreadsRunning, 1);
-  waitParent();
+  synchronize();
   initializeLists();
-  __sync_fetch_and_add(&nThreadsRunning, 1);
-  waitParent();
+  synchronize();
   /*
   std::vector<std::vector<std::vector<unsigned> > > aBorderMols;
   std::vector<std::vector<std::vector<unsigned> > > aBorderTars;
@@ -236,8 +182,6 @@ void Thread::work()
     {
       //walk(aBorderMols, aBorderTars);
       walk();
-      __sync_fetch_and_add(&nThreadsRunning, 1);
-      waitParent();
     }
 }
 
