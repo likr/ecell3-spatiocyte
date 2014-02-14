@@ -52,14 +52,13 @@ class Thread
 { 
 public: 
   Thread(unsigned anID, unsigned aThreadSize, unsigned& aThreadsRunning,
-         pthread_mutex_t& mutex, pthread_cond_t& cond, std::vector<Species*>& aSpecies,
+         pthread_barrier_t& barrier, std::vector<Species*>& aSpecies,
          SpatiocyteStepper& aStepper):
     theID(anID),
     theThreadSize(aThreadSize),
     theStepper(aStepper),
     nThreadsRunning(aThreadsRunning),
-    mutex(mutex),
-    cond(cond),
+    barrier_(barrier),
     theSpecies(aSpecies),
     isToggled(false),
     isRunA(true)
@@ -197,7 +196,10 @@ public:
       theIDs[aBoxID][aMol] = anID;
     }
   void updateMols(std::vector<unsigned>& aMols, unsigned aBoxID);
-  void synchronize();
+  void synchronize()
+    {
+      pthread_barrier_wait(&barrier_);
+    }
   void initialize();
   void initializeLists();
   void walk();
@@ -214,8 +216,7 @@ protected:
   const unsigned theThreadSize;
   SpatiocyteStepper& theStepper;
   unsigned& nThreadsRunning;
-  pthread_mutex_t& mutex;
-  pthread_cond_t& cond;
+  pthread_barrier_t& barrier_;
   std::ofstream out;
   std::vector<Species*>& theSpecies;
   std::vector<std::vector<unsigned> > theTars;

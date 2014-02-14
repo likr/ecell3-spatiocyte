@@ -35,6 +35,7 @@ namespace libecs
 
 void Thread::initialize()
 {
+  synchronize();
   theTotalBoxSize = theStepper.getBoxSize();
   theBoxSize = theTotalBoxSize/theThreadSize;
   theRng.Reseed();
@@ -78,6 +79,7 @@ void Thread::initialize()
 
 void Thread::initializeLists()
 {
+  synchronize();
   for(unsigned i(0); i != theBoxSize; ++i)
     {
       theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i],
@@ -105,6 +107,11 @@ void Thread::doWork()
 
 void Thread::walk()
 {
+  static int HOGE = 0;
+  if (!theID) {
+    std::cout << HOGE++ << std::endl;
+  }
+  synchronize();
   unsigned r(0);
   unsigned w(1);
   if(isToggled)
@@ -130,33 +137,14 @@ void Thread::walk()
                               theAdjAdjBoxes[i], theRands[i]);
         }
     }
-  synchronize();
-}
-
-void Thread::synchronize()
-{
-  pthread_mutex_lock(&mutex);
-  nThreadsRunning += 1;
-  if (nThreadsRunning == theThreadSize) {
-    pthread_cond_broadcast(&cond);
-    nThreadsRunning = 0;
-  } else {
-    pthread_cond_wait(&cond, &mutex);
-  }
-  pthread_mutex_unlock(&mutex);
 }
 
 void Thread::work()
 {
-  synchronize();
   theStepper.constructLattice(theID);
-  synchronize();
   theStepper.concatenateLattice(theID);
-  synchronize();
   initialize();
-  synchronize();
   initializeLists();
-  synchronize();
   /*
   std::vector<std::vector<std::vector<unsigned> > > aBorderMols;
   std::vector<std::vector<std::vector<unsigned> > > aBorderTars;
