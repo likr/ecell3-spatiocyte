@@ -46,7 +46,7 @@ void Thread::initialize()
   theRands.resize(theBoxSize);
   theAdjBoxes.resize(theBoxSize);
   theAdjAdjBoxes.resize(theBoxSize);
-  theAdjMols.resize(theBoxSize);
+  theAdjMols.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjTars.resize(theBoxSize);
   theAdjAdjMols.resize(theBoxSize);
   theAdjAdjTars.resize(theBoxSize);
@@ -56,7 +56,6 @@ void Thread::initialize()
   theRepeatAdjTars.resize(theBoxSize);
   for(unsigned i(0); i != theBoxSize; ++i)
     {
-      theAdjMols[i].resize(2);
       theAdjTars[i].resize(2);
       theAdjAdjMols[i].resize(2);
       theAdjAdjTars[i].resize(2);
@@ -66,7 +65,6 @@ void Thread::initialize()
       theRepeatAdjTars[i].resize(theTotalBoxSize);
       for(unsigned j(0); j != 2; ++j)
         {
-          theAdjMols[i][j].resize(theTotalBoxSize);
           theAdjTars[i][j].resize(theTotalBoxSize);
           theAdjAdjMols[i][j].resize(theTotalBoxSize);
           theAdjAdjTars[i][j].resize(theTotalBoxSize);
@@ -84,7 +82,7 @@ void Thread::initializeLists()
   for(unsigned i(0); i != theBoxSize; ++i)
     {
       theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i],
-                                     theTars[i], theAdjMols[i], theAdjTars[i],
+                                     theTars[i], theAdjMols.data() + theTotalBoxSize * 2 * i, theAdjTars[i],
                                      theAdjoins[i], theIDs[i], theAdjBoxes[i],
                                      theAdjAdjBoxes[i], theRands[i]);
     }
@@ -127,7 +125,7 @@ void Thread::walk()
       for(unsigned i(0); i != theBoxSize; ++i)
         {
           theSpecies[0]->walk((theID*theBoxSize)+i, r, w, theRng, theMols[i],
-                              theTars[i], theAdjMols[i], theAdjTars[i],
+                              theTars[i], theAdjMols.data() + theTotalBoxSize * 2 * i, theAdjTars[i],
                               theAdjAdjMols[i], theAdjAdjTars[i],
                               theBorderMols[i], theBorderTars[i],
                               theRepeatAdjMols[i], theRepeatAdjTars[i],
@@ -251,13 +249,13 @@ void Thread::updateMols(std::vector<unsigned>& aMols, unsigned aBoxID)
     }
   for(unsigned i(0); i != theTotalBoxSize; ++i)
     {
-      for(unsigned j(0); j != theAdjMols[aBoxID][0][i].size(); ++j)
+      for(unsigned j(0); j != getAdjMolsSize(i, 0, aBoxID); ++j)
         {
-          aMols.push_back(theAdjMols[aBoxID][0][i][j]);
+          aMols.push_back(getAdjMols(i, 0, aBoxID)[j]);
         }
-      for(unsigned j(0); j != theAdjMols[aBoxID][1][i].size(); ++j)
+      for(unsigned j(0); j != getAdjMolsSize(i, 1, aBoxID); ++j)
         {
-          aMols.push_back(theAdjMols[aBoxID][1][i][j]);
+          aMols.push_back(getAdjMols(i, 1, aBoxID)[j]);
         }
     }
 }

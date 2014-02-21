@@ -100,14 +100,14 @@ public:
     }
   unsigned getAdjMolsSize(unsigned aBox, unsigned r, unsigned aBoxID)
     {
-      return theAdjMols[aBoxID][r][aBox].size();
+      return getAdjMols(aBox, r, aBoxID).size();
     }
   unsigned getAdjMolsSize(unsigned r, unsigned aBoxID)
     {
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theAdjMols[aBoxID][r][i].size();
+          aSize += getAdjMols(i, r, aBoxID).size();
         }
       return aSize;
     }
@@ -169,7 +169,7 @@ public:
   std::vector<unsigned>& getAdjMols(unsigned aBox, unsigned r,
                                     unsigned aBoxID)
     {
-      return theAdjMols[aBoxID][r][aBox];
+      return theAdjMols[theTotalBoxSize * (2 * aBoxID + r) + aBox];
     }
   std::vector<unsigned>& getAdjTars(unsigned aBox, unsigned r,
                                     unsigned aBoxID)
@@ -189,7 +189,7 @@ public:
   void pushAdj(unsigned aBox, unsigned rw, unsigned aMol, unsigned aTar,
                unsigned aBoxID)
     {
-      theAdjMols[aBoxID][rw][aBox].push_back(aMol);
+      getAdjMols(aBox, rw, aBoxID).push_back(aMol);
       theAdjTars[aBoxID][rw][aBox].push_back(aTar);
     }
   void setMolID(unsigned aMol, unsigned short anID, unsigned aBoxID)
@@ -229,7 +229,7 @@ protected:
   RandomLib::Random theRng;
   unsigned theBoxSize;
   unsigned theTotalBoxSize;
-  std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjMols;
+  std::vector<std::vector<unsigned> > theAdjMols;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjMols;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjTars;

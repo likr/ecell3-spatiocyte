@@ -458,7 +458,7 @@ public:
                        RandomLib::Random& aRng,
                        std::vector<unsigned>& aMols,
                        std::vector<unsigned>& aTars,
-                       std::vector<std::vector<std::vector<unsigned> > >& anAdjMols,
+                       std::vector<unsigned>* anAdjMols,
                        std::vector<std::vector<std::vector<unsigned> > >& anAdjTars,
                        std::vector<unsigned>& anAdjoins,
                        std::vector<unsigned short>& anIDs,
@@ -495,8 +495,7 @@ public:
               anIDs[i] = theIDs[anID][i];
             } 
           setRands(anID, 1, aMols.size(), anAdjBoxes, aRands, aRng);
-          setTars(anID, aMols, aTars, anAdjMols[0], anAdjTars[0], anAdjoins, aRands);
-          //setTars(theMols[anID], theTars[anID], theAdjMols[0], theAdjTars[0], anID, theAdjoins[anID]);
+          setTars(anID, aMols, aTars, anAdjMols, anAdjTars[0], anAdjoins, aRands);
         }
     }
   unsigned getCollisionCnt(unsigned anIndex)
@@ -702,7 +701,7 @@ public:
   void setTars(const unsigned currBox,
                std::vector<unsigned>& aMols,
                std::vector<unsigned>& aTars,
-               std::vector<std::vector<unsigned> >&,
+               std::vector<unsigned>*,
                std::vector<std::vector<unsigned> >&,
                const std::vector<unsigned>& anAdjoins,
                std::vector<unsigned>& aRands);
@@ -714,7 +713,7 @@ public:
            RandomLib::Random& aRng,
            std::vector<unsigned>& aMols,
            std::vector<unsigned>& aTars,
-           std::vector<std::vector<std::vector<unsigned> > >& anAdjMols,
+           std::vector<unsigned>* anAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjTars,
@@ -727,49 +726,6 @@ public:
            const std::vector<unsigned>& anAdjBoxes,
            const std::vector<unsigned>& anAdjAdjBoxes,
            std::vector<unsigned>& aRands);
-  /*
-  void setTars(std::vector<unsigned>& aMols,
-               std::vector<unsigned>& aTars,
-               std::vector<std::vector<std::vector<unsigned> > >& aNextMols,
-               std::vector<std::vector<std::vector<unsigned> > >& aNextTars,
-               const unsigned currBox,
-               const std::vector<unsigned>& anAdjoins);
-  void walkMols(std::vector<unsigned>& aMols,
-                const std::vector<unsigned>& aTars,
-                std::vector<unsigned short>& anIDs);
-  void walkAdjMols(std::vector<unsigned>& aMols,
-                   std::vector<std::vector<unsigned> >& aBoxAdjMols,
-                   std::vector<std::vector<unsigned> >& aBoxAdjTars, 
-                   std::vector<unsigned short>& anIDs,
-                   const std::vector<unsigned>& anAdjBoxes);
-  void setAdjTars(std::vector<std::vector<std::vector<unsigned> > >&
-                  aBorderMols,
-                  std::vector<std::vector<std::vector<unsigned> > >&
-                  aBorderTars,
-                  std::vector<std::vector<std::vector<unsigned> > >&
-                  anAdjAdjMols,
-                  std::vector<std::vector<std::vector<unsigned> > >&
-                  anAdjAdjTars,
-                  std::vector<std::vector<unsigned> >& aRepeatAdjMols,
-                  std::vector<std::vector<unsigned> >& aRepeatAdjTars,
-                  std::vector<std::vector<unsigned> >& anAdjMols,
-                  const std::vector<unsigned>& anAdjBoxes,
-                  const unsigned currBox);
-  void updateBoxMols(std::vector<std::vector<unsigned> >& aBorderMols,
-                     std::vector<std::vector<unsigned> >& aBorderTars,
-                     std::vector<unsigned>& aMols,
-                     std::vector<unsigned>& aTars,
-                     const std::vector<unsigned>& anAdjBoxes);
-  void updateAdjMols(std::vector<std::vector<unsigned> >& aRepeatAdjMols,
-                     std::vector<std::vector<unsigned> >& aRepeatAdjTars,
-                     std::vector<std::vector<unsigned> >& anAdjMols,
-                     std::vector<std::vector<unsigned> >& anAdjTars,
-                     const std::vector<unsigned>& anAdjBoxes);
-  void updateAdjAdjMols(std::vector<std::vector<unsigned> >& anAdjAdjMols,
-                        std::vector<std::vector<unsigned> >& anAdjAdjTars,
-                        std::vector<std::vector<unsigned> >& anAdjMols,
-                        std::vector<std::vector<unsigned> >& anAdjTars);
-                        */
 
   void walkMultiscale()
     {
