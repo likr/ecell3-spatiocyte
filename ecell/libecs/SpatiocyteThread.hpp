@@ -116,7 +116,7 @@ public:
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theAdjTars[aBoxID][r][i].size();
+          aSize += getAdjMols(i, r, aBoxID).size();
         }
       return aSize;
     }
@@ -174,7 +174,7 @@ public:
   std::vector<unsigned>& getAdjTars(unsigned aBox, unsigned r,
                                     unsigned aBoxID)
     {
-      return theAdjTars[aBoxID][r][aBox];
+      return theAdjTars[theTotalBoxSize * (2 * aBoxID + r) + aBox];
     }
   std::vector<unsigned>& getAdjAdjMols(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
@@ -190,7 +190,7 @@ public:
                unsigned aBoxID)
     {
       getAdjMols(aBox, rw, aBoxID).push_back(aMol);
-      theAdjTars[aBoxID][rw][aBox].push_back(aTar);
+      getAdjTars(aBox, rw, aBoxID).push_back(aTar);
     }
   void setMolID(unsigned aMol, unsigned short anID, unsigned aBoxID)
     {
@@ -230,7 +230,7 @@ protected:
   unsigned theBoxSize;
   unsigned theTotalBoxSize;
   std::vector<std::vector<unsigned> > theAdjMols;
-  std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjTars;
+  std::vector<std::vector<unsigned> > theAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjMols;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theBorderMols;

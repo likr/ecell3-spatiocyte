@@ -459,7 +459,7 @@ public:
                        std::vector<unsigned>& aMols,
                        std::vector<unsigned>& aTars,
                        std::vector<unsigned>* anAdjMols,
-                       std::vector<std::vector<std::vector<unsigned> > >& anAdjTars,
+                       std::vector<unsigned>* anAdjTars,
                        std::vector<unsigned>& anAdjoins,
                        std::vector<unsigned short>& anIDs,
                        std::vector<unsigned>& anAdjBoxes,
@@ -495,7 +495,7 @@ public:
               anIDs[i] = theIDs[anID][i];
             } 
           setRands(anID, 1, aMols.size(), anAdjBoxes, aRands, aRng);
-          setTars(anID, aMols, aTars, anAdjMols, anAdjTars[0], anAdjoins, aRands);
+          setTars(anID, aMols, aTars, anAdjMols, anAdjTars, anAdjoins, aRands);
         }
     }
   unsigned getCollisionCnt(unsigned anIndex)
@@ -702,7 +702,7 @@ public:
                std::vector<unsigned>& aMols,
                std::vector<unsigned>& aTars,
                std::vector<unsigned>*,
-               std::vector<std::vector<unsigned> >&,
+               std::vector<unsigned>*,
                const std::vector<unsigned>& anAdjoins,
                std::vector<unsigned>& aRands);
   void updateBoxMols(const unsigned currBox, const unsigned r,
@@ -714,7 +714,7 @@ public:
            std::vector<unsigned>& aMols,
            std::vector<unsigned>& aTars,
            std::vector<unsigned>* anAdjMols,
-           std::vector<std::vector<std::vector<unsigned> > >& anAdjTars,
+           std::vector<unsigned>* anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& aBorderMols,

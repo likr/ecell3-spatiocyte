@@ -261,7 +261,7 @@ void Species::setTars(const unsigned currBox,
                       std::vector<unsigned>& aMols,
                       std::vector<unsigned>& aTars,
                       std::vector<unsigned>* anAdjMols,
-                      std::vector<std::vector<unsigned> >& anAdjTars,
+                      std::vector<unsigned>* anAdjTars,
                       const std::vector<unsigned>& anAdjoins,
                       std::vector<unsigned>& aRands)
 {
@@ -327,7 +327,7 @@ void Species::walk(const unsigned anID, unsigned r, unsigned w,
            std::vector<unsigned>& aMols,
            std::vector<unsigned>& aTars,
            std::vector<unsigned>* anAdjMols,
-           std::vector<std::vector<std::vector<unsigned> > >& anAdjTars,
+           std::vector<unsigned>* anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& aBorderMols,
@@ -346,7 +346,7 @@ void Species::walk(const unsigned anID, unsigned r, unsigned w,
   updateAdjAdjMols(anID, r, anAdjAdjBoxes); 
   walkAdjMols(anID, r, aMols, anIDs, anAdjBoxes);
   setRands(anID, r, aMols.size(), anAdjBoxes, aRands, aRng);
-  setTars(anID, aMols, aTars, anAdjMols + theStepper->getBoxSize() * w, anAdjTars[w], anAdjoins, aRands);
+  setTars(anID, aMols, aTars, anAdjMols + theStepper->getBoxSize() * w, anAdjTars + theStepper->getBoxSize() * w, anAdjoins, aRands);
   setAdjTars(anID, r, aBorderMols[w], aBorderTars[w], anAdjAdjMols[w], anAdjAdjTars[w], aRepeatAdjMols, aRepeatAdjTars, anAdjBoxes, aMols.size(), aRands);
 }
 

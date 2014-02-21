@@ -47,7 +47,7 @@ void Thread::initialize()
   theAdjBoxes.resize(theBoxSize);
   theAdjAdjBoxes.resize(theBoxSize);
   theAdjMols.resize(theBoxSize * 2 * theTotalBoxSize);
-  theAdjTars.resize(theBoxSize);
+  theAdjTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjAdjMols.resize(theBoxSize);
   theAdjAdjTars.resize(theBoxSize);
   theBorderMols.resize(theBoxSize);
@@ -56,7 +56,6 @@ void Thread::initialize()
   theRepeatAdjTars.resize(theBoxSize);
   for(unsigned i(0); i != theBoxSize; ++i)
     {
-      theAdjTars[i].resize(2);
       theAdjAdjMols[i].resize(2);
       theAdjAdjTars[i].resize(2);
       theBorderMols[i].resize(2);
@@ -65,7 +64,6 @@ void Thread::initialize()
       theRepeatAdjTars[i].resize(theTotalBoxSize);
       for(unsigned j(0); j != 2; ++j)
         {
-          theAdjTars[i][j].resize(theTotalBoxSize);
           theAdjAdjMols[i][j].resize(theTotalBoxSize);
           theAdjAdjTars[i][j].resize(theTotalBoxSize);
           theBorderMols[i][j].resize(theTotalBoxSize);
@@ -81,8 +79,9 @@ void Thread::initializeLists()
   runChildren();
   for(unsigned i(0); i != theBoxSize; ++i)
     {
-      theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i],
-                                     theTars[i], theAdjMols.data() + theTotalBoxSize * 2 * i, theAdjTars[i],
+      theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i], theTars[i],
+                                     theAdjMols.data() + theTotalBoxSize * 2 * i,
+                                     theAdjTars.data() + theTotalBoxSize * 2 * i,
                                      theAdjoins[i], theIDs[i], theAdjBoxes[i],
                                      theAdjAdjBoxes[i], theRands[i]);
     }
@@ -124,8 +123,9 @@ void Thread::walk()
     {
       for(unsigned i(0); i != theBoxSize; ++i)
         {
-          theSpecies[0]->walk((theID*theBoxSize)+i, r, w, theRng, theMols[i],
-                              theTars[i], theAdjMols.data() + theTotalBoxSize * 2 * i, theAdjTars[i],
+          theSpecies[0]->walk((theID*theBoxSize)+i, r, w, theRng, theMols[i], theTars[i],
+                              theAdjMols.data() + theTotalBoxSize * 2 * i,
+                              theAdjTars.data() + theTotalBoxSize * 2 * i,
                               theAdjAdjMols[i], theAdjAdjTars[i],
                               theBorderMols[i], theBorderTars[i],
                               theRepeatAdjMols[i], theRepeatAdjTars[i],
