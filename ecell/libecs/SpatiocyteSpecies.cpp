@@ -162,15 +162,58 @@ void Species::walkAdjMols(const unsigned currBox, const unsigned r,
                           std::vector<unsigned short>& anIDs,
                           const std::vector<unsigned>& anAdjBoxes)
 {
+#if defined(__MIC__)
+  const unsigned BLOCKSIZE(512);
+  const unsigned aBoxSizePerThread = theBoxSize / theThreadSize;
+  for(unsigned iStart(0); iStart < anAdjBoxes.size(); iStart += BLOCKSIZE)
+    {
+      const unsigned iStop = std::min(iStart + BLOCKSIZE, (unsigned)anAdjBoxes.size());
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned anAdjBox = anAdjBoxes[i];
+          const unsigned aBox(anAdjBox / aBoxSizePerThread);
+          const unsigned aBoxID(anAdjBox % aBoxSizePerThread);
+          _mm_prefetch((const char*)theThreads[aBox]->getAdjMolsAddress(currBox, r, aBoxID), _MM_HINT_T2);
+          _mm_prefetch((const char*)theThreads[aBox]->getAdjTarsAddress(currBox, r, aBoxID), _MM_HINT_T2);
+        }
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned anAdjBox = anAdjBoxes[i];
+          const unsigned aBox(anAdjBox / aBoxSizePerThread);
+          const unsigned aBoxID(anAdjBox % aBoxSizePerThread);
+          std::vector<unsigned>& adjMols(theThreads[aBox]->getAdjMols(currBox, r, aBoxID));
+          std::vector<unsigned>& adjTars(theThreads[aBox]->getAdjTars(currBox, r, aBoxID));
+          unsigned n(adjMols.size());
+          for(unsigned j(0); j < n; ++j)
+            {
+              const unsigned aTar(adjTars[j]);
+              const unsigned aTarMol(aTar%theBoxMaxSize);
+              if(anIDs[aTarMol] == theVacantID)
+                {
+                  anIDs[aTarMol] = theID;
+                  theThreads[aBox]->setMolID(adjMols[j], theVacantID, aBoxID);
+                  aMols.push_back(aTarMol);
+                  adjMols[j] = adjMols.back();
+                  adjMols.pop_back();
+                  adjTars[j] = adjTars.back();
+                  adjTars.pop_back();
+                  --j;
+                }
+            }
+          adjTars.resize(0);
+        }
+    }
+#else
   for(unsigned i(0); i != anAdjBoxes.size(); ++i)
     {
-      const unsigned aBox(anAdjBoxes[i]/(theBoxSize/theThreadSize));
-      const unsigned aBoxID(anAdjBoxes[i]%(theBoxSize/theThreadSize));
+      const unsigned anAdjBox = anAdjBoxes[i];
+      const unsigned aBox(anAdjBox/(theBoxSize/theThreadSize));
+      const unsigned aBoxID(anAdjBox%(theBoxSize/theThreadSize));
       std::vector<unsigned>& adjMols(theThreads[aBox]->getAdjMols(currBox, r,
                                                                   aBoxID));
       std::vector<unsigned>& adjTars(theThreads[aBox]->getAdjTars(currBox, r,
                                                                   aBoxID));
-      for(unsigned j(0); j < adjMols.size(); ++j)
+      for(unsigned j(0), n(adjMols.size()); j < n; ++j)
         {
           const unsigned aTar(adjTars[j]);
           const unsigned aTarMol(aTar%theBoxMaxSize);
@@ -189,6 +232,7 @@ void Species::walkAdjMols(const unsigned currBox, const unsigned r,
         }
       adjTars.resize(0);
     }
+#endif
 }
 
 void Species::setAdjTars(const unsigned currBox, const unsigned r,
@@ -244,6 +288,30 @@ void Species::setRands(const unsigned currBox,
                        RandomLib::Random& aRng)
 
 {
+#if defined(__MIC__)
+  const unsigned BLOCKSIZE(16);
+  for(unsigned iStart(0); iStart < anAdjBoxes.size(); iStart += BLOCKSIZE)
+    {
+      const unsigned iStop = std::min(iStart + BLOCKSIZE, (unsigned)anAdjBoxes.size());
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned adjBox(anAdjBoxes[i]/(theBoxSize/theThreadSize));
+          const unsigned aBoxID(anAdjBoxes[i]%(theBoxSize/theThreadSize));
+          _mm_prefetch((const char*)(theThreads[adjBox]->getAdjMolsAddress(currBox, r, aBoxID)), _MM_HINT_T0);
+        }
+      for(unsigned i(iStart); i < iStop; ++i)
+        {
+          const unsigned adjBox(anAdjBoxes[i]/(theBoxSize/theThreadSize));
+          const unsigned aBoxID(anAdjBoxes[i]%(theBoxSize/theThreadSize));
+          aSize += theThreads[adjBox]->getAdjMolsSize(currBox, r, aBoxID);
+        }
+    }
+  aRands.resize(aSize);
+  for(unsigned i(0); i < aSize; ++i)
+    {
+      aRands[i] = aRng.IntegerC(11);
+    }
+#else
   for(unsigned i(0); i != anAdjBoxes.size(); ++i)
     {
       const unsigned adjBox(anAdjBoxes[i]/(theBoxSize/theThreadSize));
@@ -255,6 +323,7 @@ void Species::setRands(const unsigned currBox,
     {
       aRands[i] = aRng.IntegerC(11);
     }
+#endif
 }
 
 void Species::setTars(const unsigned currBox,

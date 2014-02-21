@@ -156,6 +156,14 @@ public:
         }
       return aSize;
     }
+  std::vector<unsigned>* getAdjMolsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjMols.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
+  std::vector<unsigned>* getAdjTarsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
   std::vector<unsigned>& getBorderMols(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
     {
