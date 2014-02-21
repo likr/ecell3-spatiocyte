@@ -50,24 +50,20 @@ void Thread::initialize()
   theAdjTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjAdjMols.resize(theBoxSize);
   theAdjAdjTars.resize(theBoxSize);
-  theBorderMols.resize(theBoxSize);
-  theBorderTars.resize(theBoxSize);
+  theBorderMols.resize(theBoxSize * 2 * theTotalBoxSize);
+  theBorderTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theRepeatAdjMols.resize(theBoxSize);
   theRepeatAdjTars.resize(theBoxSize);
   for(unsigned i(0); i != theBoxSize; ++i)
     {
       theAdjAdjMols[i].resize(2);
       theAdjAdjTars[i].resize(2);
-      theBorderMols[i].resize(2);
-      theBorderTars[i].resize(2);
       theRepeatAdjMols[i].resize(theTotalBoxSize);
       theRepeatAdjTars[i].resize(theTotalBoxSize);
       for(unsigned j(0); j != 2; ++j)
         {
           theAdjAdjMols[i][j].resize(theTotalBoxSize);
           theAdjAdjTars[i][j].resize(theTotalBoxSize);
-          theBorderMols[i][j].resize(theTotalBoxSize);
-          theBorderTars[i][j].resize(theTotalBoxSize);
         }
     }
   //doWork();
@@ -127,7 +123,8 @@ void Thread::walk()
                               theAdjMols.data() + theTotalBoxSize * 2 * i,
                               theAdjTars.data() + theTotalBoxSize * 2 * i,
                               theAdjAdjMols[i], theAdjAdjTars[i],
-                              theBorderMols[i], theBorderTars[i],
+                              theBorderMols.data() + theTotalBoxSize * 2 * i,
+                              theBorderTars.data() + theTotalBoxSize * 2 * i,
                               theRepeatAdjMols[i], theRepeatAdjTars[i],
                               theAdjoins[i], theIDs[i], theAdjBoxes[i],
                               theAdjAdjBoxes[i], theRands[i]);

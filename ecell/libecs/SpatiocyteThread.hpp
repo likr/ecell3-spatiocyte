@@ -85,7 +85,7 @@ public:
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theBorderMols[aBoxID][r][i].size();
+          aSize += getBorderMols(i, r, aBoxID).size();
         }
       return aSize;
     }
@@ -94,7 +94,7 @@ public:
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theBorderTars[aBoxID][r][i].size();
+          aSize += getBorderTars(i, r, aBoxID).size();
         }
       return aSize;
     }
@@ -159,12 +159,12 @@ public:
   std::vector<unsigned>& getBorderMols(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
     {
-      return theBorderMols[aBoxID][r][aBox];
+      return theBorderMols[theTotalBoxSize * (2 * aBoxID + r) + aBox];
     }
   std::vector<unsigned>& getBorderTars(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
     {
-      return theBorderTars[aBoxID][r][aBox];
+      return theBorderTars[theTotalBoxSize * (2 * aBoxID + r) + aBox];
     }
   std::vector<unsigned>& getAdjMols(unsigned aBox, unsigned r,
                                     unsigned aBoxID)
@@ -233,8 +233,8 @@ protected:
   std::vector<std::vector<unsigned> > theAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjMols;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjTars;
-  std::vector<std::vector<std::vector<std::vector<unsigned> > > > theBorderMols;
-  std::vector<std::vector<std::vector<std::vector<unsigned> > > > theBorderTars;
+  std::vector<std::vector<unsigned> > theBorderMols;
+  std::vector<std::vector<unsigned> > theBorderTars;
   std::vector<std::vector<std::vector<unsigned> > > theRepeatAdjMols;
   std::vector<std::vector<std::vector<unsigned> > > theRepeatAdjTars;
   bool isToggled;
