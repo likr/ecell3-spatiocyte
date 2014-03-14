@@ -138,24 +138,40 @@ public:
         }
       return aSize;
     }
+
+  unsigned& getRepeatAdjCount(unsigned aBox, unsigned aBoxID)
+    {
+      return theRepeatAdjCounts[theTotalBoxSize * aBoxID + aBox];
+    }
+
+  std::vector<unsigned>& getRepeatAdjMols(unsigned aBox, unsigned aBoxID)
+    {
+      return theRepeatAdjMols[theTotalBoxSize * aBoxID + aBox];
+    }
   unsigned getRepeatAdjMolsSize(unsigned aBoxID)
     {
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theRepeatAdjMols[aBoxID][i].size();
+          aSize += getRepeatAdjMols(i, aBoxID).size();
         }
       return aSize;
+    }
+
+  std::vector<unsigned>& getRepeatAdjTars(unsigned aBox, unsigned aBoxID)
+    {
+      return theRepeatAdjTars[theTotalBoxSize * aBoxID + aBox];
     }
   unsigned getRepeatAdjTarsSize(unsigned aBoxID)
     {
       unsigned aSize(0);
       for(unsigned i(0); i != theTotalBoxSize; ++i)
         {
-          aSize += theRepeatAdjTars[aBoxID][i].size();
+          aSize += getRepeatAdjTars(i, aBoxID).size();
         }
       return aSize;
     }
+
   std::vector<unsigned>* getAdjMolsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
     {
       return theAdjMols.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
@@ -164,13 +180,9 @@ public:
     {
       return theAdjTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
     }
-  unsigned getBorderCount(unsigned aBox, unsigned r, unsigned aBoxID)
+  unsigned& getBorderCount(unsigned aBox, unsigned r, unsigned aBoxID)
     {
       return theBorderCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox];
-    }
-  void setBorderCount(unsigned aBox, unsigned r, unsigned aBoxID, unsigned value)
-    {
-      theBorderCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox] = value;
     }
   unsigned* getBorderCountAddress(unsigned aBox, unsigned r, unsigned aBoxID)
     {
@@ -264,8 +276,9 @@ protected:
   std::vector<unsigned> theBorderCounts;
   std::vector<std::vector<unsigned> > theBorderMols;
   std::vector<std::vector<unsigned> > theBorderTars;
-  std::vector<std::vector<std::vector<unsigned> > > theRepeatAdjMols;
-  std::vector<std::vector<std::vector<unsigned> > > theRepeatAdjTars;
+  std::vector<unsigned> theRepeatAdjCounts;
+  std::vector<std::vector<unsigned> > theRepeatAdjMols;
+  std::vector<std::vector<unsigned> > theRepeatAdjTars;
   bool isToggled;
   bool isRunA;
   std::vector<std::vector<unsigned> > theRands;
