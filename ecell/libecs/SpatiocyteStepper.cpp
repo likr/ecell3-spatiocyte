@@ -118,7 +118,7 @@ SpatiocyteStepper::~SpatiocyteStepper()
       std::cout << "destructing" << std::endl;
   for(unsigned i(0); i != theThreads.size(); ++i)
     {
-      std::cout << "destructing" << i << std::endl;
+      //std::cout << "destructing" << i << std::endl;
       //theThreads[i]->joinChildren();
     }
 }

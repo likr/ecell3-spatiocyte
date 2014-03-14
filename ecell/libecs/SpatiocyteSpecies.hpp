@@ -684,6 +684,7 @@ public:
                           std::vector<unsigned short>& anIDs,
                           const std::vector<unsigned>& anAdjBoxes);
   void setAdjTars(const unsigned currBox, const unsigned r,
+                unsigned* aBorderCounts,
                 std::vector<unsigned>* aBorderMols,
                 std::vector<unsigned>* aBorderTars,
                 std::vector<std::vector<unsigned> >& anAdjAdjMols,
@@ -717,6 +718,7 @@ public:
            std::vector<unsigned>* anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjTars,
+           unsigned* aBorderCounts,
            std::vector<unsigned>* aBorderMols,
            std::vector<unsigned>* aBorderTars,
            std::vector<std::vector<unsigned> >& aRepeatAdjMols,

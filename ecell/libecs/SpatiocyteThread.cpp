@@ -50,6 +50,7 @@ void Thread::initialize()
   theAdjTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjAdjMols.resize(theBoxSize);
   theAdjAdjTars.resize(theBoxSize);
+  theBorderCounts.resize(theBoxSize * 2 * theTotalBoxSize);
   theBorderMols.resize(theBoxSize * 2 * theTotalBoxSize);
   theBorderTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theRepeatAdjMols.resize(theBoxSize);
@@ -123,6 +124,7 @@ void Thread::walk()
                               theAdjMols.data() + theTotalBoxSize * 2 * i,
                               theAdjTars.data() + theTotalBoxSize * 2 * i,
                               theAdjAdjMols[i], theAdjAdjTars[i],
+                              theBorderCounts.data() + theTotalBoxSize * 2 * i,
                               theBorderMols.data() + theTotalBoxSize * 2 * i,
                               theBorderTars.data() + theTotalBoxSize * 2 * i,
                               theRepeatAdjMols[i], theRepeatAdjTars[i],

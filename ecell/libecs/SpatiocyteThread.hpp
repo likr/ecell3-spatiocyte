@@ -164,6 +164,18 @@ public:
     {
       return theAdjTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
     }
+  unsigned getBorderCount(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theBorderCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox];
+    }
+  void setBorderCount(unsigned aBox, unsigned r, unsigned aBoxID, unsigned value)
+    {
+      theBorderCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox] = value;
+    }
+  unsigned* getBorderCountAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theBorderCounts.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
   std::vector<unsigned>& getBorderMols(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
     {
@@ -173,6 +185,14 @@ public:
                                        unsigned aBoxID)
     {
       return theBorderTars[theTotalBoxSize * (2 * aBoxID + r) + aBox];
+    }
+  std::vector<unsigned>* getBorderMolsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theBorderMols.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
+  std::vector<unsigned>* getBorderTarsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theBorderTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
     }
   std::vector<unsigned>& getAdjMols(unsigned aBox, unsigned r,
                                     unsigned aBoxID)
@@ -241,6 +261,7 @@ protected:
   std::vector<std::vector<unsigned> > theAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjMols;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjTars;
+  std::vector<unsigned> theBorderCounts;
   std::vector<std::vector<unsigned> > theBorderMols;
   std::vector<std::vector<unsigned> > theBorderTars;
   std::vector<std::vector<std::vector<unsigned> > > theRepeatAdjMols;

@@ -44,22 +44,26 @@ void Species::updateBoxMols(const unsigned currBox, const unsigned r,
                             std::vector<unsigned>& aTars,
                             const std::vector<unsigned>& anAdjBoxes)
 {
+  const unsigned aBoxSizePerThread = theBoxSize / theThreadSize;
   for(unsigned i(0); i != anAdjBoxes.size(); ++i)
     {
-      const unsigned adjBox(anAdjBoxes[i]/(theBoxSize/theThreadSize));
-      const unsigned aBoxID(anAdjBoxes[i]%(theBoxSize/theThreadSize));
+      const unsigned adjBox(anAdjBoxes[i] / aBoxSizePerThread);
+      const unsigned aBoxID(anAdjBoxes[i] % aBoxSizePerThread);
+      Thread* aThread(theThreads[adjBox]);
       //reading border mols, so shared:
-      std::vector<unsigned>& borderMols(theThreads[adjBox
-                                        ]->getBorderMols(currBox, r, aBoxID));
-      std::vector<unsigned>& borderTars(theThreads[adjBox
-                                        ]->getBorderTars(currBox, r, aBoxID));
-      for(unsigned j(0); j < borderMols.size(); ++j)
+      if (aThread->getBorderCount(currBox, r, aBoxID))
         {
-          aMols.push_back(borderMols[j]);
-          aTars.push_back(borderTars[j]);
+          std::vector<unsigned>& borderMols(aThread->getBorderMols(currBox, r, aBoxID));
+          std::vector<unsigned>& borderTars(aThread->getBorderTars(currBox, r, aBoxID));
+          for(unsigned j(0); j < borderMols.size(); ++j)
+            {
+              aMols.push_back(borderMols[j]);
+              aTars.push_back(borderTars[j]);
+            }
+          aThread->setBorderCount(currBox, r, aBoxID, 0);
+          borderMols.resize(0);
+          borderTars.resize(0);
         }
-      borderMols.resize(0);
-      borderTars.resize(0);
     }
 }
 
@@ -236,6 +240,7 @@ void Species::walkAdjMols(const unsigned currBox, const unsigned r,
 }
 
 void Species::setAdjTars(const unsigned currBox, const unsigned r,
+                unsigned* aBorderCounts,
                 std::vector<unsigned>* aBorderMols,
                 std::vector<unsigned>* aBorderTars,
                 std::vector<std::vector<unsigned> >& anAdjAdjMols,
@@ -260,13 +265,14 @@ void Species::setAdjTars(const unsigned currBox, const unsigned r,
           const unsigned aMol(adjMols[j]);
           const unsigned aTar(anAdjoins[aMol*theAdjoinSize+aRands[startRand++]]);
           const unsigned aBox(aTar/theBoxMaxSize);
-          if(aBox == currBox) 
+          if(aBox == currBox)
             {
               aRepeatAdjMols[adjBox].push_back(aMol);
               aRepeatAdjTars[adjBox].push_back(aTar);
             }
           else if(aBox == adjBox)
             {
+              aBorderCounts[adjBox] += 1;
               aBorderMols[adjBox].push_back(aMol);
               aBorderTars[adjBox].push_back(aTar);
             }
@@ -399,6 +405,7 @@ void Species::walk(const unsigned anID, unsigned r, unsigned w,
            std::vector<unsigned>* anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjTars,
+           unsigned* aBorderCounts,
            std::vector<unsigned>* aBorderMols,
            std::vector<unsigned>* aBorderTars,
            std::vector<std::vector<unsigned> >& aRepeatAdjMols,
@@ -410,6 +417,7 @@ void Species::walk(const unsigned anID, unsigned r, unsigned w,
            std::vector<unsigned>& aRands)
 {
   unsigned aTotalBoxSize = theStepper->getBoxSize();
+  unsigned aBorderOffset = aTotalBoxSize * w;
   updateBoxMols(anID, r, aMols, aTars, anAdjBoxes);
   walkMols(aMols, aTars, anIDs);
   updateAdjMols(anID, r, aRepeatAdjMols, aRepeatAdjTars, anAdjBoxes);
@@ -417,7 +425,7 @@ void Species::walk(const unsigned anID, unsigned r, unsigned w,
   walkAdjMols(anID, r, aMols, anIDs, anAdjBoxes);
   setRands(anID, r, aMols.size(), anAdjBoxes, aRands, aRng);
   setTars(anID, aMols, aTars, anAdjMols + aTotalBoxSize * w, anAdjTars + aTotalBoxSize * w, anAdjoins, aRands);
-  setAdjTars(anID, r, aBorderMols + aTotalBoxSize * w, aBorderTars + aTotalBoxSize * w, anAdjAdjMols[w], anAdjAdjTars[w], aRepeatAdjMols, aRepeatAdjTars, anAdjBoxes, aMols.size(), aRands);
+  setAdjTars(anID, r, aBorderCounts + aBorderOffset, aBorderMols + aBorderOffset, aBorderTars + aBorderOffset, anAdjAdjMols[w], anAdjAdjTars[w], aRepeatAdjMols, aRepeatAdjTars, anAdjBoxes, aMols.size(), aRands);
 }
 
 void Species::updateMols()
