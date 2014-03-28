@@ -1,0 +1,20 @@
+diff --git a/ecell/dm/Makefile.am b/ecell/dm/Makefile.am
+index eea2953..ffb38f1 100644
+--- a/ecell/dm/Makefile.am
++++ b/ecell/dm/Makefile.am
+@@ -52,6 +52,7 @@ DMH = \
+ 	QuasiDynamicFluxProcess.hpp \
+ 	QuasiDynamicFluxProcessInterface.hpp
+ 
++if HAVE_PYTHON_LIB
+ SOS = \
+ 	MassActionFluxProcess$(LTDL_SHLIB_EXT) \
+ 	MichaelisUniUniFluxProcess$(LTDL_SHLIB_EXT) \
+@@ -76,7 +77,6 @@ SOS = \
+ 	ExpressionAlgebraicProcess$(LTDL_SHLIB_EXT) \
+ 	ExpressionAssignmentProcess$(LTDL_SHLIB_EXT)
+ 
+-if HAVE_PYTHON_LIB
+ SOS += \
+ 	PythonFluxProcess$(LTDL_SHLIB_EXT) \
+ 	PythonProcess$(LTDL_SHLIB_EXT)

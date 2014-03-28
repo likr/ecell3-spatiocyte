@@ -5,6 +5,7 @@ SUFFIXES = .cpp $(LTDL_SHLIB_EXT)
 SHELL = @SHELL@
 
 AM_CXXFLAGS = @CXXFLAGS@
+CXXFLAGS = --option-with-argument=--param --option-with-argument=--sysroot @CXXFLAGS@
 
 ECELL3_DMC = $(top_builddir)/pyecell/ecell3-python ../bin/ecell3-dmc
 
@@ -51,6 +52,7 @@ DMH = \
 	QuasiDynamicFluxProcess.hpp \
 	QuasiDynamicFluxProcessInterface.hpp
 
+if HAVE_PYTHON_LIB
 SOS = \
 	MassActionFluxProcess$(LTDL_SHLIB_EXT) \
 	MichaelisUniUniFluxProcess$(LTDL_SHLIB_EXT) \
@@ -75,7 +77,6 @@ SOS = \
 	ExpressionAlgebraicProcess$(LTDL_SHLIB_EXT) \
 	ExpressionAssignmentProcess$(LTDL_SHLIB_EXT)
 
-if HAVE_PYTHON_LIB
 SOS += \
 	PythonFluxProcess$(LTDL_SHLIB_EXT) \
 	PythonProcess$(LTDL_SHLIB_EXT)
