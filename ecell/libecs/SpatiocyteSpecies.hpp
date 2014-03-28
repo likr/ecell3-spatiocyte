@@ -458,6 +458,7 @@ public:
                        RandomLib::Random& aRng,
                        std::vector<unsigned>& aMols,
                        std::vector<unsigned>& aTars,
+                       unsigned* anAdjCounts,
                        std::vector<unsigned>* anAdjMols,
                        std::vector<unsigned>* anAdjTars,
                        std::vector<unsigned>& anAdjoins,
@@ -495,7 +496,7 @@ public:
               anIDs[i] = theIDs[anID][i];
             } 
           setRands(anID, 1, aMols.size(), anAdjBoxes, aRands, aRng);
-          setTars(anID, aMols, aTars, anAdjMols, anAdjTars, anAdjoins, aRands);
+          setTars(anID, aMols, aTars, anAdjCounts, anAdjMols, anAdjTars, anAdjoins, aRands);
         }
     }
   unsigned getCollisionCnt(unsigned anIndex)
@@ -704,6 +705,7 @@ public:
   void setTars(const unsigned currBox,
                std::vector<unsigned>& aMols,
                std::vector<unsigned>& aTars,
+               unsigned*,
                std::vector<unsigned>*,
                std::vector<unsigned>*,
                const std::vector<unsigned>& anAdjoins,
@@ -716,6 +718,7 @@ public:
            RandomLib::Random& aRng,
            std::vector<unsigned>& aMols,
            std::vector<unsigned>& aTars,
+           unsigned* anAdjCounts,
            std::vector<unsigned>* anAdjMols,
            std::vector<unsigned>* anAdjTars,
            std::vector<std::vector<std::vector<unsigned> > >& anAdjAdjMols,

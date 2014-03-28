@@ -98,6 +98,20 @@ public:
         }
       return aSize;
     }
+
+  unsigned& getAdjCount(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox];
+    }
+
+  std::vector<unsigned>& getAdjMols(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjMols[theTotalBoxSize * (2 * aBoxID + r) + aBox];
+    }
+  std::vector<unsigned>* getAdjMolsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjMols.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
   unsigned getAdjMolsSize(unsigned aBox, unsigned r, unsigned aBoxID)
     {
       return getAdjMols(aBox, r, aBoxID).size();
@@ -111,6 +125,16 @@ public:
         }
       return aSize;
     }
+
+  std::vector<unsigned>& getAdjTars(unsigned aBox, unsigned r,
+                                    unsigned aBoxID)
+    {
+      return theAdjTars[theTotalBoxSize * (2 * aBoxID + r) + aBox];
+    }
+  std::vector<unsigned>* getAdjTarsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
+    {
+      return theAdjTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
+    }
   unsigned getAdjTarsSize(unsigned r, unsigned aBoxID)
     {
       unsigned aSize(0);
@@ -120,6 +144,7 @@ public:
         }
       return aSize;
     }
+
   unsigned getAdjAdjMolsSize(unsigned r, unsigned aBoxID)
     {
       unsigned aSize(0);
@@ -172,14 +197,6 @@ public:
       return aSize;
     }
 
-  std::vector<unsigned>* getAdjMolsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
-    {
-      return theAdjMols.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
-    }
-  std::vector<unsigned>* getAdjTarsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
-    {
-      return theAdjTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
-    }
   unsigned& getBorderCount(unsigned aBox, unsigned r, unsigned aBoxID)
     {
       return theBorderCounts[theTotalBoxSize * (2 * aBoxID + r) + aBox];
@@ -205,16 +222,6 @@ public:
   std::vector<unsigned>* getBorderTarsAddress(unsigned aBox, unsigned r, unsigned aBoxID)
     {
       return theBorderTars.data() + theTotalBoxSize * (2 * aBoxID + r) + aBox;
-    }
-  std::vector<unsigned>& getAdjMols(unsigned aBox, unsigned r,
-                                    unsigned aBoxID)
-    {
-      return theAdjMols[theTotalBoxSize * (2 * aBoxID + r) + aBox];
-    }
-  std::vector<unsigned>& getAdjTars(unsigned aBox, unsigned r,
-                                    unsigned aBoxID)
-    {
-      return theAdjTars[theTotalBoxSize * (2 * aBoxID + r) + aBox];
     }
   std::vector<unsigned>& getAdjAdjMols(unsigned aBox, unsigned r,
                                        unsigned aBoxID)
@@ -269,6 +276,7 @@ protected:
   RandomLib::Random theRng;
   unsigned theBoxSize;
   unsigned theTotalBoxSize;
+  std::vector<unsigned> theAdjCounts;
   std::vector<std::vector<unsigned> > theAdjMols;
   std::vector<std::vector<unsigned> > theAdjTars;
   std::vector<std::vector<std::vector<std::vector<unsigned> > > > theAdjAdjMols;

@@ -46,6 +46,7 @@ void Thread::initialize()
   theRands.resize(theBoxSize);
   theAdjBoxes.resize(theBoxSize);
   theAdjAdjBoxes.resize(theBoxSize);
+  theAdjCounts.resize(theTotalBoxSize * 2 * theTotalBoxSize);
   theAdjMols.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjTars.resize(theBoxSize * 2 * theTotalBoxSize);
   theAdjAdjMols.resize(theBoxSize);
@@ -76,6 +77,7 @@ void Thread::initializeLists()
   for(unsigned i(0); i != theBoxSize; ++i)
     {
       theSpecies[0]->initializeLists((theID*theBoxSize)+i, theRng, theMols[i], theTars[i],
+                                     theAdjCounts.data() + theTotalBoxSize * 2 * i,
                                      theAdjMols.data() + theTotalBoxSize * 2 * i,
                                      theAdjTars.data() + theTotalBoxSize * 2 * i,
                                      theAdjoins[i], theIDs[i], theAdjBoxes[i],
@@ -120,6 +122,7 @@ void Thread::walk()
       for(unsigned i(0); i != theBoxSize; ++i)
         {
           theSpecies[0]->walk((theID*theBoxSize)+i, r, w, theRng, theMols[i], theTars[i],
+                              theAdjCounts.data() + theTotalBoxSize * 2 * i,
                               theAdjMols.data() + theTotalBoxSize * 2 * i,
                               theAdjTars.data() + theTotalBoxSize * 2 * i,
                               theAdjAdjMols[i], theAdjAdjTars[i],
